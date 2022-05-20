@@ -1,0 +1,39 @@
+.container-split {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.players {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+table, th, td {}
+
+th, td {
+    padding: 5px;
+}
+
+th {
+    text-align: left;
+}
+
+.poke-summary {
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.type-filter {
+    display: flex;
+    margin-left: 10px;
+    margin-top: 20px;
+    justify-content: center;
+    gap: 10px;
+    flex-direction: row;
+}

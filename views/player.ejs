@@ -1,0 +1,19 @@
+<%- include("partials/header"); %>
+
+    <form>
+        <div class="framed">
+            Welcome PlayerName. What do you want to do: <br/><br/>
+            
+            <ul class="buttons">
+                <li><button formaction="/player/id_1/pokemon">MANAGE</button></li>
+                <li><button formmethod="post" formaction="/player/id_1/save">SAVE</button></li>
+
+                <li><button formaction="/">EXIT</button></li>
+            </ul>
+
+
+        </div>
+
+    </form>
+  
+<%- include("partials/footer"); %>

@@ -1,0 +1,26 @@
+<%- include("partials/header"); %>
+    
+    <div class="container-split">
+        <img src="/images/oak.png"/>
+
+        <div class="framed">
+            Hello there! Welcome to the world of POKEMON! 
+            My name is OAK! People call me the POKEMON PROF! This world is inhabited by creatures called POKEMON! For some people, POKEMON are pets. Others use them for fights. Myself...I study POKEMON as a profession. <br/><br/>First, what is your name?<br/>
+            <br/>
+
+            <div class="players">
+                <a href="/player/id_1">Player name 1</a>
+                <a href="/player/id_2">Player name 2</a>
+            </div>
+            
+            <form action="/createPlayer" method="POST">
+                <input class="white" type="text" name="name" value="RED"/>
+                <button type="submit">Submit</button>
+            </form>
+            </div>
+
+        </div>
+    </div>
+
+<%- include("partials/footer"); %>
+    
