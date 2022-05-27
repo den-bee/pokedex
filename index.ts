@@ -1,5 +1,10 @@
+import { create } from "domain";
 import express from "express";
 import { MongoClient, ObjectId } from "mongodb";
+
+const uri = "mongodb+srv://michielbaert:EMnd4mQCAA6qy8dy@mijncluster.ppxqq.mongodb.net/?retryWrites=true&w=majority";
+
+const client = new MongoClient(uri);
 
 const app = express();
 
@@ -10,11 +15,47 @@ app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.set("port", 3000);
 
+interface Player {
+    _id?: ObjectId;
+    name: string;
+}
+
+let players: Player[] = [];
+
+const createPlayer = async (player: Player) => {
+    try {
+        await client.connect();
+        await client.db("Pokedex").collection("Player").insertOne(player);
+        await loadPlayersFromDb();
+    } catch(e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+}
+
+const loadPlayersFromDb = async () => {
+    try {
+        await client.connect();
+        players = await client.db("Pokedex").collection("Player").find<Player>({}).toArray();
+    } catch(e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+}
+
 app.get("/", async(req, res) => {
-    res.render("index");
+    res.render("index", {
+        players: players
+    });
 });
 
 app.post("/createPlayer", async (req, res) => {
+    let name: string = req.body.name;
+    await createPlayer({
+        name: name
+    })
     res.redirect("/");
 });
 
@@ -41,5 +82,7 @@ app.post("/player/:id/pokemon/delete/:pokeId", async (req, res) => {
 
 
 app.listen(app.get("port"), async () => {
+    await loadPlayersFromDb();
+    console.log("Players loaded from database");
     console.log(`Local url: http://localhost:${app.get("port")}`);
 });
