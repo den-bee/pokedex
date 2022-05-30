@@ -22,6 +22,10 @@ interface Player {
 
 let players: Player[] = [];
 
+const getPlayerById = (id: string) => {
+    return players.find(p => p._id?.toString() === id);
+}
+
 const createPlayer = async (player: Player) => {
     try {
         await client.connect();
@@ -60,7 +64,13 @@ app.post("/createPlayer", async (req, res) => {
 });
 
 app.get("/player/:id", async(req, res) => {
-    res.render("player");
+    let player = getPlayerById(req.params.id);
+    if(!player) {
+        return res.status(404).send("Player not found");
+    }
+    res.render("player", {
+        player: player
+    });
 });
 
 app.get("/player/:id/pokemon", async(req, res) => {
