@@ -5,7 +5,7 @@
             Welcome <%= player.name %>. What do you want to do: <br/><br/>
             <form>
                 <ul class="buttons">
-                    <li><button formaction="/player/id_1/pokemon">MANAGE</button></li>
+                    <li><button formaction="/player/<%= player._id %>/pokemon>">MANAGE</button></li>
                     <li><button formmethod="post" formaction="/player/id_1/save">SAVE</button></li>
 
                     <li><button formaction="/">EXIT</button></li>

@@ -19,6 +19,7 @@ app.set("port", 3000);
 interface Player {
     _id?: ObjectId;
     name: string;
+    pokemon: Pokemon[]
 }
 
 interface Pokemon {
@@ -110,7 +111,8 @@ app.get("/", async(req, res) => {
 app.post("/createPlayer", async (req, res) => {
     let name: string = req.body.name;
     await createPlayer({
-        name: name
+        name: name,
+        pokemon: []
     })
     res.redirect("/");
 });
@@ -126,7 +128,19 @@ app.get("/player/:id", async(req, res) => {
 });
 
 app.get("/player/:id/pokemon", async(req, res) => {
-    res.render("pokemon");
+    let player = getPlayerById(req.params.id);
+    if(!player) {
+        return res.status(404).send("Player not found");
+    }
+
+    let filteredPokemon = allPokemon.filter(pokemon => {
+        return !player?.pokemon.find(p => p.id === pokemon.id)
+    });
+
+    res.render("pokemon", {
+        allPokemon: filteredPokemon,
+        player: player
+    });
 });
 
 app.post("/player/:id/save", async(req, res) => {
@@ -134,7 +148,19 @@ app.post("/player/:id/save", async(req, res) => {
 });
 
 app.post("/player/:id/pokemon/add/:pokeId", async(req, res) => {
-    res.redirect("/player/" + req.params.id + "/pokemon");
+    let player = getPlayerById(req.params.id);
+    let pokemon: Pokemon | undefined = allPokemon.find(p => p.id === parseInt(req.params.pokeId));
+    if(!player) {
+        return res.status(404).send("Player not found");
+    }
+    if(!pokemon) {
+        return res.status(404).send("Pokemon not found");
+    }
+
+    pokemon.currentHp = Math.floor(Math.random() * pokemon.maxHp);
+    player.pokemon = [pokemon, ...player.pokemon.slice(0,5)];
+
+    res.redirect(`:player/${player._id}/pokemon`);
 });
 
 app.post("/player/:id/pokemon/delete/:pokeId", async (req, res) => {

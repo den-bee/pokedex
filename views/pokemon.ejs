@@ -1,78 +1,25 @@
 <%- include("partials/header"); %>
-
 <form>
     <div class="framed">
-        <table width="100%">
-            <thead>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Weight</th>
-                <th>Height</th>
-                <th>Types</th>
-                <th style="width: 150px">HP</th>
-                <th></th>
-            </thead>
-            <tr>
-                <td><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" /></td>
-                <td>Bulbasaur</td>
-                <td>69</td>
-                <td>7</td>
-                <td>
-                    <img src="/images/types/grass.gif" />
-                </td>
-                <td>
-                    <div class="progress-bar-container"><div class="progress-bar p50" id="progressBarG"></div></div>
-                    <div style="margin-top: 5px">22/45</div>
-                </td>
-                <td>
-                    <button formmethod="post" formaction="/player/id_1/pokemon/delete/1">
-                        X
-                    </button>
-                </td>
-            </tr>
-        </table>
-        <div class="poke-summary">
-            <table>
-                <tr>
-                    <th>Used types</th>
-                    <td>
-                        <img src="/images/types/grass.gif" />
-                    </td>
-                </tr>
-                <tr>
-                    <th>Largest</th>
-                    <td>7</td>
-                </tr>
-                <tr>
-                    <th>Smallest</th>
-                    <td>7</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <div class="framed" id="allPokemon">
-        <button formmethod="post" formaction="/player/id_1/pokemon/add/2">
-            Ivysaur #2
-        </button>
-        <button formmethod="post" formaction="/player/id_1/pokemon/add/3">
-            Venusaur #3
-        </button>
-
-        <div class="type-filter">
-            <a href="/player/id_1/pokemon?filter=grass#allPokemon"><img src="/images/types/grass.gif"></a>
-            <a href="/player/id_1/pokemon?filter=fire#allPokemon"><img src="/images/types/fire.gif"></a>
-            <a href="/player/id_1/pokemon?filter=bug#allPokemon"><img src="/images/types/bug.gif"></a>
-            <!-- Gebruik een for loop om over alle types te gaan. Je kan de types in een array plaatsen. -->
-
-        </div>
+        <% if(player.pokemon.length > 0) { %>
+            <% for (let pokemon of player.pokemon) { %>
+                <button>
+                    <%= pokemon.name %> #<%= pokemon.id %>
+                </button>
+            <% } %>
+        <% } else { %>
+            <p>You don't have any Pokemon yet!</p>
+        <% } %>
     </div>
 
     <div class="framed">
-        Welcome Player Name 1. What do you want to do: <br /><br />
 
-        <button formaction="/player/id_1">Back</button>
+        <% for (let pokemon of allPokemon) { %>
+            <button formmethod="post" formaction="/player/<%= player._id %>/pokemon/add<%= pokemon.id %>">
+                <%= pokemon.name %> #<%= pokemon.id %>
+            </button>
+        <% } %>
+
     </div>
 </form>
-
 <%- include("partials/footer"); %>
