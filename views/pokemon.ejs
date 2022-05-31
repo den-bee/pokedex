@@ -2,11 +2,67 @@
 <form>
     <div class="framed">
         <% if(player.pokemon.length > 0) { %>
-            <% for (let pokemon of player.pokemon) { %>
-                <button>
-                    <%= pokemon.name %> #<%= pokemon.id %>
-                </button>
-            <% } %>
+            <table>
+                <thead>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Weight</th>
+                    <th>Height</th>
+                    <th>Types</th>
+                    <th>HP</th>
+                    <th></th>
+                </thead>
+                <tbody>
+                    <% for (let pokemon of player.pokemon) { %>
+                        <tr>
+                            <td><img src="<%= pokemon.image %>"/></td>
+                            <td><%= pokemon.name %></td>
+                            <td><%= pokemon.weight %></td>
+                            <td><%= pokemon.height %></td>
+                            <td>
+                                <% for (let type of pokemon.types) { %>
+                                    <img src="/images/types/<%= type %>.gif"/>
+                                <% } %>
+                            </td>
+                            <td>
+                                <div class="progress-bar-container">
+                                    <label for="progressBarG">
+                                        <%= pokemon.currentHp %> / <%= pokemon.maxHp %>
+                                    </label>
+                                    <div class="progress-bar p<%= Math.floor((pokemon.currentHp / maxHp) *100) %>" id="progressBarG"></div>
+                                </div>
+                            </td>
+                            <td>
+                                <button formmethod="post" formaction="/player/<%= player._id %>/pokemon/delete<%= pokemon.id %>">
+                                    X
+                                </button>
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+
+            <div class="poke-summary">
+                <table>
+                    <tr>
+                        <th>Used types</th>
+                        <td>
+                            <% for (let type of types) { %>
+                                <img src="/images/types/<%= type%>.gif">
+                            <% } %>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Largest</th>
+                        <td><%= largest.name %></td>
+                    </tr>
+                    <tr>
+                        <th>Smallest</th>
+                        <td><%= smallest.name %></td>
+                    </tr>
+                </table>
+            </div>
+            
         <% } else { %>
             <p>You don't have any Pokemon yet!</p>
         <% } %>
@@ -20,6 +76,12 @@
             </button>
         <% } %>
 
+    </div>
+
+    <div class="framed">
+        Welcome player <%= player.name %>. What do you want to do: <br/><br/>
+
+        <button formaction="/player/<%player._id %>">BACK</button>
     </div>
 </form>
 <%- include("partials/footer"); %>

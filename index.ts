@@ -63,6 +63,20 @@ const loadPlayersFromDb = async () => {
     }
 }
 
+const updatePlayer = async (player: Player) => {
+    try {
+        await client.connect();
+
+        await client.db("Pokedex").collection("Player").updateOne({_id : player._id},{$set: {
+            pokemon: player.pokemon
+        }});
+    } catch(e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+}
+
 const loadPokemonFromDb = async () => {
     try {
         await client.connect();
@@ -137,14 +151,27 @@ app.get("/player/:id/pokemon", async(req, res) => {
         return !player?.pokemon.find(p => p.id === pokemon.id)
     });
 
+    let types : string[] = (player.pokemon.length > 0) ? Array.from(new Set(player.pokemon.reduce((prev: string[], curr: Pokemon) => [...prev, ...curr.types], []))) : [];
+
+    let largest = (player.pokemon.length > 0) ? (player.pokemon.reduce((prev, curr) => curr.height > prev.height ? curr : prev)) : undefined;
+    let smallest = (player.pokemon.length > 0) ? (player.pokemon.reduce((prev, curr) => curr.height < prev.height ? curr : prev)) : undefined;
+
     res.render("pokemon", {
         allPokemon: filteredPokemon,
-        player: player
+        player: player,
+        smallest: smallest,
+        largest: largest,
+        types: types
     });
 });
 
 app.post("/player/:id/save", async(req, res) => {
-    res.redirect("/player/" + req.params.id);
+    let player = getPlayerById(req.params.id);
+    if(!player) {
+        return res.status(404).send("Player not found");
+    }
+    await updatePlayer(player);
+    res.redirect(`/player/${player._id}`);
 });
 
 app.post("/player/:id/pokemon/add/:pokeId", async(req, res) => {
@@ -160,11 +187,21 @@ app.post("/player/:id/pokemon/add/:pokeId", async(req, res) => {
     pokemon.currentHp = Math.floor(Math.random() * pokemon.maxHp);
     player.pokemon = [pokemon, ...player.pokemon.slice(0,5)];
 
-    res.redirect(`:player/${player._id}/pokemon`);
+    res.redirect(`/player/${player._id}/pokemon`);
 });
 
 app.post("/player/:id/pokemon/delete/:pokeId", async (req, res) => {
-    res.redirect("/player/" + req.params.id + "/pokemon");
+    let player = getPlayerById(req.params.id);
+    let pokemon: Pokemon | undefined = allPokemon.find(p => p.id === parseInt(req.params.pokeId));
+    if(!player) {
+        return res.status(404).send("Player not found");
+    }
+    if(!pokemon) {
+        return res.status(404).send("Pokemon not found");
+    }
+
+    player.pokemon = player.pokemon.filter(p => p.id !== parseInt(req.params.pokeId))
+    res.redirect(`/player/${player._id}/pokemon`);
 
 });
 
