@@ -143,6 +143,7 @@ app.get("/player/:id", async(req, res) => {
 
 app.get("/player/:id/pokemon", async(req, res) => {
     let player = getPlayerById(req.params.id);
+    let filter : string = req.query.filter as string;
     if(!player) {
         return res.status(404).send("Player not found");
     }
@@ -150,6 +151,10 @@ app.get("/player/:id/pokemon", async(req, res) => {
     let filteredPokemon = allPokemon.filter(pokemon => {
         return !player?.pokemon.find(p => p.id === pokemon.id)
     });
+
+    if (filter) {
+        filteredPokemon = filteredPokemon.filter(pokemon => pokemon.types.includes(filter));
+    }
 
     let types : string[] = (player.pokemon.length > 0) ? Array.from(new Set(player.pokemon.reduce((prev: string[], curr: Pokemon) => [...prev, ...curr.types], []))) : [];
 

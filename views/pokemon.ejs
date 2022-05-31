@@ -1,3 +1,9 @@
+<%
+    let pokemonTypes = [
+    "normal", "fire", "water", "electric", "grass"
+    ]
+%>
+
 <%- include("partials/header"); %>
 <form>
     <div class="framed">
@@ -75,6 +81,12 @@
                 <%= pokemon.name %> #<%= pokemon.id %>
             </button>
         <% } %>
+
+        <div class="type-filter" id="allPokemon">
+            <% for (let type of pokemonTypes) { %>
+                <a href="/player/<%= player._id %>/pokemon?filter=<%= type %>#allPokemon"><img src="/images/types/<%= type %>.gif"></a>
+            <% } %>
+        </div>
 
     </div>
 
