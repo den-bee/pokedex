@@ -1,3 +1,4 @@
+import axios from "axios";
 import { create } from "domain";
 import express from "express";
 import { MongoClient, ObjectId } from "mongodb";
@@ -20,7 +21,19 @@ interface Player {
     name: string;
 }
 
+interface Pokemon {
+    id: number;
+    name: string;
+    types: string[];
+    image: string;
+    height: number;
+    weight: number;
+    maxHp: number;
+    currentHp?: number;
+}
+
 let players: Player[] = [];
+let allPokemon: Pokemon[] = [];
 
 const getPlayerById = (id: string) => {
     return players.find(p => p._id?.toString() === id);
@@ -42,6 +55,45 @@ const loadPlayersFromDb = async () => {
     try {
         await client.connect();
         players = await client.db("Pokedex").collection("Player").find<Player>({}).toArray();
+    } catch(e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+}
+
+const loadPokemonFromDb = async () => {
+    try {
+        await client.connect();
+        let dbPokemon = await client.db("Pokedex").collection("Pokemon").find<Pokemon>({}).toArray();
+
+        if (dbPokemon.length > 0) {
+            console.log("Pokemon found in db... using these");
+            allPokemon = dbPokemon;
+        } else {
+            let response = await axios.get("https://pokeapi.co/api/v2/pokemon?limit=151");
+    
+            for(let p of response.data.results) {
+                let response = await axios.get(p.url);
+                
+                let pokemon : Pokemon = {
+                    id: response.data.id,
+                    name: response.data.name,
+                    types: response.data.types.map((t: any) => t.type.name),
+                    image: response.data.sprites.front_default,
+                    height: response.data.height,
+                    weight: response.data.weight,
+                    maxHp: response.data.stats.find((s: any) => s.stat.name =="hp")?.base_stat
+                }
+        
+                allPokemon = [...allPokemon, pokemon];
+            }
+        }
+
+        await client.db("Pokedex").collection("Pokemon").insertMany(allPokemon);
+
+        console.log("Pokemon found in db... using these");
+
     } catch(e) {
         console.error(e);
     } finally {
@@ -93,6 +145,8 @@ app.post("/player/:id/pokemon/delete/:pokeId", async (req, res) => {
 
 app.listen(app.get("port"), async () => {
     await loadPlayersFromDb();
-    console.log("Players loaded from database");
+    console.log(`${players.length} players loaded from the database`);
+    await loadPokemonFromDb();
+    console.log(`${allPokemon.length} pokemon loaded from the database/api`);
     console.log(`Local url: http://localhost:${app.get("port")}`);
 });
